@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose exec app :*)",
+      "Bash(cat :*)",
+      "Bash(ls :*)",
+      "Bash(find :*)",
+      "Bash(grep :*)",
+      "Bash(head :*)",
+      "Bash(tail :*)",
+      "Bash(wc :*)"
+    ],
+    "deny": [
+      "Bash(npm install :*)",
+      "Bash(npm i :*)",
+      "Bash(yarn add :*)",
+      "Bash(pnpm add :*)",
+      "Bash(rm -rf /*)",
+      "Bash(docker compose down)",
+      "Bash(docker compose up)",
+      "Bash(docker compose build)"
+    ]
+  },
+  "model": "claude-sonnet-4-6",
+  "maxTokens": 16000
+}

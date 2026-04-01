@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: ecom_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ecommerce_admin
+      POSTGRES_PASSWORD: dev_password_123
+      POSTGRES_DB: ecommerce_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecommerce_admin -d ecommerce_ai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ecom_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecom_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://ecommerce_admin:dev_password_123@postgres:5432/ecommerce_ai?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev_jwt_secret_change_in_production_12345
+      JWT_EXPIRATION: 24h
+      ENCRYPTION_KEY: dev_encryption_key_32bytes_change
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-placeholder}
+      SHOPIFY_API_KEY: ${SHOPIFY_API_KEY:-placeholder}
+      SHOPIFY_API_SECRET: ${SHOPIFY_API_SECRET:-placeholder}
+      SALLA_CLIENT_ID: ${SALLA_CLIENT_ID:-placeholder}
+      SALLA_CLIENT_SECRET: ${SALLA_CLIENT_SECRET:-placeholder}
+      SALLA_WEBHOOK_TOKEN: ${SALLA_WEBHOOK_TOKEN:-placeholder}
+      WHATSAPP_TOKEN: ${WHATSAPP_TOKEN:-placeholder}
+      WHATSAPP_PHONE_NUMBER_ID: ${WHATSAPP_PHONE_NUMBER_ID:-placeholder}
+      WHATSAPP_VERIFY_TOKEN: ${WHATSAPP_VERIFY_TOKEN:-placeholder}
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./test:/app/test
+      - ./CLAUDE.md:/app/CLAUDE.md
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./tsconfig.build.json:/app/tsconfig.build.json
+      - ./nest-cli.json:/app/nest-cli.json
+      # IMPORTANT: node_modules stays INSIDE the container
+      # This line prevents host node_modules from overriding container's
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

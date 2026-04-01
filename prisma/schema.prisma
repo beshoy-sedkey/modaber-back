@@ -1,0 +1,497 @@
+// ═══════════════════════════════════════════════
+// E-Commerce AI Automation System
+// Prisma Schema — PostgreSQL + pgvector
+// ═══════════════════════════════════════════════
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector, uuidOssp(map: "uuid-ossp"), pgTrgm(map: "pg_trgm")]
+}
+
+// ─────────────────────────────────────────────
+// PLATFORM MODULE
+// ─────────────────────────────────────────────
+
+enum PlatformType {
+  shopify
+  salla
+}
+
+enum PlanTier {
+  basic
+  pro
+  business
+  enterprise
+}
+
+model Merchant {
+  id                   String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                 String   @db.VarChar(255)
+  email                String   @unique @db.VarChar(255)
+  phone                String?  @db.VarChar(20)
+  platformType         PlatformType @map("platform_type")
+  platformStoreId      String   @map("platform_store_id") @db.VarChar(255)
+  platformAccessToken  String   @map("platform_access_token") @db.Text
+  platformRefreshToken String?  @map("platform_refresh_token") @db.Text
+  tokenExpiresAt       DateTime? @map("token_expires_at")
+  settings             Json?    @default("{}")
+  planTier             PlanTier @default(basic) @map("plan_tier")
+  isActive             Boolean  @default(true) @map("is_active")
+  needsReauth          Boolean  @default(false) @map("needs_reauth")
+  webhookSecret        String?  @map("webhook_secret") @db.VarChar(255)
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  customers         Customer[]
+  products          Product[]
+  orders            Order[]
+  conversations     Conversation[]
+  campaigns         Campaign[]
+  shippingCarriers  ShippingCarrier[]
+  automationRules   AutomationRule[]
+  shipments         Shipment[]
+  ratings           Rating[]
+  productEmbeddings ProductEmbedding[]
+
+  @@index([platformStoreId])
+  @@map("merchants")
+}
+
+// ─────────────────────────────────────────────
+// CUSTOMER MODULE
+// ─────────────────────────────────────────────
+
+enum CustomerSegment {
+  new_customer @map("new")
+  returning
+  vip
+  dormant
+}
+
+enum SourceChannel {
+  web
+  whatsapp
+  import
+}
+
+model Customer {
+  id               String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchantId       String          @map("merchant_id") @db.Uuid
+  name             String          @db.VarChar(255)
+  phone            String?         @db.VarChar(20)
+  email            String?         @db.VarChar(255)
+  addressEncrypted String?         @map("address_encrypted") @db.Text
+  city             String?         @db.VarChar(100)
+  country          String?         @db.VarChar(50)
+  loyaltyPoints    Int             @default(0) @map("loyalty_points")
+  totalOrders      Int             @default(0) @map("total_orders")
+  totalSpent       Decimal         @default(0) @map("total_spent") @db.Decimal(12, 2)
+  segment          CustomerSegment @default(new_customer)
+  sourceChannel    SourceChannel   @default(web) @map("source_channel")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  merchant      Merchant       @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  orders        Order[]
+  conversations Conversation[]
+  ratings       Rating[]
+
+  @@index([merchantId])
+  @@index([merchantId, phone])
+  @@index([merchantId, email])
+  @@map("customers")
+}
+
+// ─────────────────────────────────────────────
+// PRODUCT MODULE
+// ─────────────────────────────────────────────
+
+model Product {
+  id                String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchantId        String   @map("merchant_id") @db.Uuid
+  platformProductId String   @map("platform_product_id") @db.VarChar(255)
+  name              String   @db.VarChar(500)
+  description       String?  @db.Text
+  price             Decimal  @db.Decimal(12, 2)
+  compareAtPrice    Decimal? @map("compare_at_price") @db.Decimal(12, 2)
+  currency          String   @default("SAR") @db.VarChar(3)
+  stockQuantity     Int      @default(0) @map("stock_quantity")
+  category          String?  @db.VarChar(255)
+  brand             String?  @db.VarChar(255)
+  attributes        Json?    @default("{}")
+  images            Json?    @default("[]")
+  isActive          Boolean  @default(true) @map("is_active")
+  syncedAt          DateTime? @map("synced_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  merchant   Merchant           @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+  embeddings ProductEmbedding[]
+
+  @@unique([merchantId, platformProductId])
+  @@index([merchantId])
+  @@index([merchantId, category])
+  @@index([merchantId, isActive])
+  @@map("products")
+}
+
+model ProductEmbedding {
+  id           String                      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  productId    String                      @map("product_id") @db.Uuid
+  merchantId   String                      @map("merchant_id") @db.Uuid
+  embedding    Unsupported("vector(1536)")
+  embeddedText String                      @map("embedded_text") @db.Text
+  modelVersion String                      @default("text-embedding-3-small") @map("model_version") @db.VarChar(50)
+  createdAt    DateTime                    @default(now()) @map("created_at")
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@unique([productId])
+  @@index([merchantId])
+  @@map("product_embeddings")
+}
+
+// ─────────────────────────────────────────────
+// ORDER MODULE
+// ─────────────────────────────────────────────
+
+enum OrderStatus {
+  pending
+  confirming
+  confirmed
+  processing
+  shipping_assigned
+  shipped
+  delivered
+  cancelled
+  returned
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+}
+
+model Order {
+  id                String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchantId        String        @map("merchant_id") @db.Uuid
+  customerId        String        @map("customer_id") @db.Uuid
+  platformOrderId   String?       @map("platform_order_id") @db.VarChar(255)
+  status            OrderStatus   @default(pending)
+  subtotal          Decimal       @db.Decimal(12, 2)
+  discountAmount    Decimal       @default(0) @map("discount_amount") @db.Decimal(12, 2)
+  shippingCost      Decimal       @default(0) @map("shipping_cost") @db.Decimal(12, 2)
+  total             Decimal       @db.Decimal(12, 2)
+  currency          String        @default("SAR") @db.VarChar(3)
+  authenticityScore Int?          @map("authenticity_score")
+  paymentMethod     String?       @map("payment_method") @db.VarChar(50)
+  paymentStatus     PaymentStatus @default(pending) @map("payment_status")
+  shippingAddress   Json?         @map("shipping_address")
+  notes             String?       @db.Text
+  confirmedAt       DateTime?     @map("confirmed_at")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  merchant Merchant    @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customer Customer    @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
+  shipment Shipment?
+  rating   Rating?
+
+  @@unique([merchantId, platformOrderId])
+  @@index([merchantId])
+  @@index([merchantId, status])
+  @@index([merchantId, customerId])
+  @@index([merchantId, createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  orderId    String  @map("order_id") @db.Uuid
+  productId  String  @map("product_id") @db.Uuid
+  variantId  String? @map("variant_id") @db.VarChar(255)
+  quantity   Int
+  unitPrice  Decimal @map("unit_price") @db.Decimal(12, 2)
+  totalPrice Decimal @map("total_price") @db.Decimal(12, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+// ─────────────────────────────────────────────
+// SHIPPING MODULE
+// ─────────────────────────────────────────────
+
+enum ShipmentStatus {
+  pending
+  picked_up
+  in_transit
+  out_for_delivery
+  delivered
+  failed
+  returned
+}
+
+model Shipment {
+  id                String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  orderId           String         @unique @map("order_id") @db.Uuid
+  merchantId        String         @map("merchant_id") @db.Uuid
+  carrierId         String         @map("carrier_id") @db.Uuid
+  trackingNumber    String?        @map("tracking_number") @db.VarChar(255)
+  status            ShipmentStatus @default(pending)
+  labelUrl          String?        @map("label_url") @db.Text
+  estimatedCost     Decimal?       @map("estimated_cost") @db.Decimal(10, 2)
+  actualCost        Decimal?       @map("actual_cost") @db.Decimal(10, 2)
+  weightKg          Decimal?       @map("weight_kg") @db.Decimal(6, 2)
+  estimatedDelivery DateTime?      @map("estimated_delivery")
+  shippedAt         DateTime?      @map("shipped_at")
+  deliveredAt       DateTime?      @map("delivered_at")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  order    Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  merchant Merchant        @relation(fields: [merchantId], references: [id])
+  carrier  ShippingCarrier @relation(fields: [carrierId], references: [id])
+
+  @@index([merchantId])
+  @@index([merchantId, status])
+  @@index([trackingNumber])
+  @@map("shipments")
+}
+
+enum CarrierName {
+  aramex
+  smsa
+  bosta
+  dhl
+  fedex
+  r2s
+  jt_express
+  other
+}
+
+model ShippingCarrier {
+  id              String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchantId      String      @map("merchant_id") @db.Uuid
+  carrierName     CarrierName @map("carrier_name")
+  apiKeyEncrypted String?     @map("api_key_encrypted") @db.Text
+  apiCredentials  Json?       @map("api_credentials")
+  isActive        Boolean     @default(true) @map("is_active")
+  priority        Int         @default(1)
+  coverageAreas   Json?       @map("coverage_areas")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  merchant  Merchant   @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  shipments Shipment[]
+
+  @@index([merchantId])
+  @@map("shipping_carriers")
+}
+
+// ─────────────────────────────────────────────
+// AI CHAT MODULE
+// ─────────────────────────────────────────────
+
+enum ConversationChannel {
+  web
+  whatsapp
+}
+
+enum ConversationStatus {
+  active
+  closed
+  escalated
+}
+
+model Conversation {
+  id            String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchantId    String              @map("merchant_id") @db.Uuid
+  customerId    String?             @map("customer_id") @db.Uuid
+  channel       ConversationChannel @default(web)
+  status        ConversationStatus  @default(active)
+  sessionId     String              @unique @map("session_id") @db.VarChar(255)
+  totalMessages Int                 @default(0) @map("total_messages")
+  totalTokens   Int                 @default(0) @map("total_tokens")
+  resolvedByAi  Boolean             @default(true) @map("resolved_by_ai")
+  startedAt     DateTime            @default(now()) @map("started_at")
+  endedAt       DateTime?           @map("ended_at")
+
+  merchant Merchant  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id])
+  messages Message[]
+
+  @@index([merchantId])
+  @@index([merchantId, status])
+  @@map("conversations")
+}
+
+enum MessageRole {
+  user
+  assistant
+  system
+  tool
+}
+
+model Message {
+  id             String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  conversationId String      @map("conversation_id") @db.Uuid
+  role           MessageRole
+  content        String      @db.Text
+  toolCalls      Json?       @map("tool_calls")
+  toolResults    Json?       @map("tool_results")
+  tokensInput    Int?        @map("tokens_input")
+  tokensOutput   Int?        @map("tokens_output")
+  latencyMs      Int?        @map("latency_ms")
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+// ─────────────────────────────────────────────
+// MARKETING MODULE
+// ─────────────────────────────────────────────
+
+enum CampaignType {
+  social_post
+  ad_campaign
+}
+
+enum CampaignPlatform {
+  instagram
+  facebook
+  tiktok
+  snapchat
+  google_ads
+}
+
+enum CampaignStatus {
+  draft
+  scheduled
+  published
+  paused
+  completed
+}
+
+model Campaign {
+  id             String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchantId     String           @map("merchant_id") @db.Uuid
+  type           CampaignType
+  platform       CampaignPlatform
+  content        String           @db.Text
+  mediaUrls      Json?            @default("[]") @map("media_urls")
+  hashtags       Json?            @default("[]")
+  targetAudience Json?            @map("target_audience")
+  budget         Decimal?         @db.Decimal(10, 2)
+  status         CampaignStatus   @default(draft)
+  scheduledAt    DateTime?        @map("scheduled_at")
+  publishedAt    DateTime?        @map("published_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  merchant Merchant         @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  metrics  CampaignMetric[]
+
+  @@index([merchantId])
+  @@index([merchantId, status])
+  @@map("campaigns")
+}
+
+model CampaignMetric {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  campaignId  String   @map("campaign_id") @db.Uuid
+  impressions Int      @default(0)
+  reach       Int      @default(0)
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  spend       Decimal  @default(0) @db.Decimal(10, 2)
+  revenue     Decimal  @default(0) @db.Decimal(10, 2)
+  metricDate  DateTime @map("metric_date") @db.Date
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([campaignId, metricDate])
+  @@map("campaign_metrics")
+}
+
+// ─────────────────────────────────────────────
+// AUTOMATION MODULE
+// ─────────────────────────────────────────────
+
+enum RatingStatus {
+  pending
+  submitted
+  published
+}
+
+model Rating {
+  id          String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  orderId     String       @unique @map("order_id") @db.Uuid
+  customerId  String       @map("customer_id") @db.Uuid
+  merchantId  String       @map("merchant_id") @db.Uuid
+  score       Int          @db.SmallInt
+  reviewText  String?      @map("review_text") @db.Text
+  status      RatingStatus @default(pending)
+  requestedAt DateTime?    @map("requested_at")
+  submittedAt DateTime?    @map("submitted_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id])
+  merchant Merchant @relation(fields: [merchantId], references: [id])
+
+  @@index([merchantId])
+  @@index([merchantId, score])
+  @@map("ratings")
+}
+
+enum TriggerEvent {
+  order_received
+  order_confirmed
+  shipment_dispatched
+  delivery_completed
+  cart_abandoned
+  customer_registered
+  rating_submitted
+}
+
+model AutomationRule {
+  id             String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchantId     String       @map("merchant_id") @db.Uuid
+  name           String       @db.VarChar(255)
+  description    String?      @db.Text
+  triggerEvent   TriggerEvent @map("trigger_event")
+  conditions     Json         @default("{}")
+  actions        Json         @default("[]")
+  delayMinutes   Int          @default(0) @map("delay_minutes")
+  isActive       Boolean      @default(true) @map("is_active")
+  executionCount Int          @default(0) @map("execution_count")
+  lastExecutedAt DateTime?    @map("last_executed_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId])
+  @@index([merchantId, triggerEvent, isActive])
+  @@map("automation_rules")
+}
