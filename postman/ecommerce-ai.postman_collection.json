@@ -1,0 +1,276 @@
+{
+  "info": {
+    "name": "E-Commerce AI Automation API",
+    "description": "AI-powered e-commerce automation platform - Shopify & Salla",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "token",   "value": "", "type": "string" },
+    { "key": "merchantId", "value": "00000000-0000-0000-0000-000000000001", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Generate Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('token', res.token);",
+                  "  console.log('✅ Token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"{{merchantId}}\",\n  \"platformType\": \"shopify\",\n  \"planTier\": \"basic\"\n}"
+            },
+            "description": "Generate a JWT token. Token auto-saves to collection variable. Use seeded merchantId."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛍️ Shopify OAuth",
+      "item": [
+        {
+          "name": "Install (Redirect to Shopify)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/auth/shopify/install?shop=your-store.myshopify.com",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "shopify", "install"],
+              "query": [{ "key": "shop", "value": "your-store.myshopify.com" }]
+            },
+            "description": "Opens Shopify consent screen. Replace shop= with real store domain."
+          }
+        },
+        {
+          "name": "OAuth Callback",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/auth/shopify/callback?shop=your-store.myshopify.com&code=OAUTH_CODE&hmac=HMAC_VALUE&timestamp=1234567890&state=STATE",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "shopify", "callback"],
+              "query": [
+                { "key": "shop",      "value": "your-store.myshopify.com" },
+                { "key": "code",      "value": "OAUTH_CODE" },
+                { "key": "hmac",      "value": "HMAC_VALUE" },
+                { "key": "timestamp", "value": "1234567890" },
+                { "key": "state",     "value": "STATE" }
+              ]
+            },
+            "description": "Called by Shopify after merchant approves. Verifies HMAC, exchanges code, returns JWT."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Shopify Webhooks",
+      "item": [
+        {
+          "name": "Simulate Order Created",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",            "value": "application/json" },
+              { "key": "X-Shopify-Topic",          "value": "orders/create" },
+              { "key": "X-Shopify-Shop-Domain",    "value": "seed-store.myshopify.com" },
+              { "key": "X-Shopify-Hmac-SHA256",    "value": "REPLACE_WITH_VALID_HMAC", "description": "Compute: base64(HMAC-SHA256(SHOPIFY_API_SECRET, rawBody))" }
+            ],
+            "url": "{{baseUrl}}/webhooks/shopify",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 9001,\n  \"name\": \"#1001\",\n  \"financial_status\": \"paid\",\n  \"subtotal_price\": \"199.00\",\n  \"total_discounts\": \"0.00\",\n  \"total_price\": \"199.00\",\n  \"currency\": \"SAR\",\n  \"payment_gateway\": \"visa\",\n  \"line_items\": [\n    {\n      \"variant_id\": 1,\n      \"title\": \"Test Product\",\n      \"quantity\": 2,\n      \"price\": \"99.50\"\n    }\n  ],\n  \"customer\": {\n    \"first_name\": \"Ahmed\",\n    \"last_name\": \"Ali\",\n    \"email\": \"ahmed@test.com\",\n    \"phone\": \"+966501234567\"\n  },\n  \"shipping_address\": {\n    \"address1\": \"123 King Fahd Rd\",\n    \"city\": \"Riyadh\",\n    \"country\": \"SA\"\n  },\n  \"created_at\": \"2026-04-04T10:00:00Z\"\n}"
+            },
+            "description": "Simulates Shopify sending an order/create webhook. Requires valid HMAC header."
+          }
+        },
+        {
+          "name": "Simulate Product Created",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",            "value": "application/json" },
+              { "key": "X-Shopify-Topic",          "value": "products/create" },
+              { "key": "X-Shopify-Shop-Domain",    "value": "seed-store.myshopify.com" },
+              { "key": "X-Shopify-Hmac-SHA256",    "value": "REPLACE_WITH_VALID_HMAC" }
+            ],
+            "url": "{{baseUrl}}/webhooks/shopify",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 5001,\n  \"title\": \"Arabic Coffee Maker\",\n  \"body_html\": \"<p>Premium coffee maker</p>\",\n  \"vendor\": \"AlKhair\",\n  \"product_type\": \"Kitchen\",\n  \"status\": \"active\",\n  \"variants\": [\n    { \"id\": 1, \"price\": \"149.00\", \"compare_at_price\": \"199.00\", \"inventory_quantity\": 30 }\n  ],\n  \"images\": [{ \"src\": \"https://example.com/coffee.jpg\" }]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔄 Shopify Sync",
+      "item": [
+        {
+          "name": "Trigger Manual Product Sync",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/platform/shopify/sync",
+            "description": "Manually triggers full product sync from Shopify. Requires JWT. Uses seeded merchant's access token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌐 Salla OAuth",
+      "item": [
+        {
+          "name": "Install (Redirect to Salla)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/salla/install",
+            "description": "Redirects to Salla OAuth consent page."
+          }
+        },
+        {
+          "name": "OAuth Callback",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/auth/salla/callback?code=SALLA_CODE&state=STATE",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "salla", "callback"],
+              "query": [
+                { "key": "code",  "value": "SALLA_CODE" },
+                { "key": "state", "value": "STATE" }
+              ]
+            },
+            "description": "Called by Salla after merchant approves. Exchanges code for tokens, saves merchant, returns JWT."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "page",     "value": "1" },
+                { "key": "limit",    "value": "10" },
+                { "key": "category", "value": "", "disabled": true },
+                { "key": "search",   "value": "", "disabled": true }
+              ]
+            },
+            "description": "Returns paginated products for the authenticated merchant. Supports category and search filters."
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products/PRODUCT_ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "PRODUCT_ID"]
+            },
+            "description": "Replace PRODUCT_ID with an ID from the list response."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Orders",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/orders?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"],
+              "query": [
+                { "key": "page",   "value": "1" },
+                { "key": "limit",  "value": "10" },
+                { "key": "status", "value": "pending", "disabled": true, "description": "pending|confirmed|shipped|delivered|cancelled" }
+              ]
+            },
+            "description": "Returns paginated orders with customer info and items. Filter by status optionally."
+          }
+        },
+        {
+          "name": "List Orders — Pending Only",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/orders?status=pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"],
+              "query": [{ "key": "status", "value": "pending" }]
+            }
+          }
+        },
+        {
+          "name": "List Orders — Delivered",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/orders?status=delivered",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"],
+              "query": [{ "key": "status", "value": "delivered" }]
+            }
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/orders/ORDER_ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "ORDER_ID"]
+            },
+            "description": "Returns full order with customer, items, product names, and shipment info."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📖 Docs",
+      "item": [
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/docs",
+            "description": "Interactive API documentation"
+          }
+        }
+      ]
+    }
+  ]
+}
