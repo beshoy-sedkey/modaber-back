@@ -78,7 +78,7 @@ src/modules/<name>/
 ## Security Rules
 - JWT includes: merchantId, platformType, planTier
 - All endpoints require @UseGuards(JwtAuthGuard) except webhooks
-- Shopify webhooks: verify HMAC-SHA256
+- Shopify webhooks: verify HMAC-SHA256except
 - Salla webhooks: verify Authorization header token
 - Return 200 from webhooks immediately, process async via BullMQ
 - Encrypted fields: AES-256-GCM via EncryptionService

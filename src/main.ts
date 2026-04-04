@@ -6,9 +6,6 @@ import { json, Request } from 'express';
 
 import { AppModule } from './app.module';
 
-// Side-effect import: augments Express Request with rawBody
-import './types/express';
-
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
