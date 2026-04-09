@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { validateEnv } from './config/env.validation';
 import { SharedModule } from './shared/shared.module';
@@ -19,6 +20,7 @@ import { OrdersModule } from './modules/orders/orders.module';
       cache: true,
     }),
     EventEmitterModule.forRoot(),
+    ScheduleModule.forRoot(),
     SharedModule,
     AuthModule,
     PlatformModule,

@@ -167,6 +167,188 @@
       ]
     },
     {
+      "name": "🔔 Salla Webhooks",
+      "item": [
+        {
+          "name": "order.created",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET", "description": "Set SALLA_WEBHOOK_SECRET env value here" }
+            ],
+            "url": "{{baseUrl}}/webhooks/salla",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"order.created\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 9001,\n    \"reference_id\": \"ORD-9001\",\n    \"status\": { \"slug\": \"pending\", \"name\": \"Pending\" },\n    \"payment_method\": \"visa\",\n    \"amounts\": {\n      \"subtotal\": { \"amount\": 199.00 },\n      \"discount\": { \"amount\": 0 },\n      \"shipping\": { \"amount\": 15.00 },\n      \"total\": { \"amount\": 214.00 }\n    },\n    \"currency\": \"SAR\",\n    \"customer\": {\n      \"id\": 101,\n      \"name\": \"Ahmed Ali\",\n      \"email\": \"ahmed@test.com\",\n      \"mobile\": \"+966501234567\"\n    },\n    \"shipping\": {\n      \"address\": {\n        \"street\": \"123 King Fahd Rd\",\n        \"city\": \"Riyadh\",\n        \"country\": \"SA\"\n      }\n    },\n    \"items\": [\n      { \"product_id\": 5001, \"name\": \"Arabic Coffee Maker\", \"quantity\": 2, \"price\": { \"amount\": 99.50 } }\n    ],\n    \"note\": \"Please gift wrap\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Simulates Salla sending an order.created webhook. Token in Authorization header must match SALLA_WEBHOOK_SECRET."
+          }
+        },
+        {
+          "name": "order.updated",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+            ],
+            "url": "{{baseUrl}}/webhooks/salla",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"order.updated\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 9001,\n    \"status\": { \"slug\": \"processing\" },\n    \"amounts\": {\n      \"subtotal\": { \"amount\": 199.00 },\n      \"discount\": { \"amount\": 0 },\n      \"shipping\": { \"amount\": 15.00 },\n      \"total\": { \"amount\": 214.00 }\n    },\n    \"currency\": \"SAR\",\n    \"items\": []\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "order.status.updated",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+            ],
+            "url": "{{baseUrl}}/webhooks/salla",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"order.status.updated\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 9001,\n    \"status\": { \"slug\": \"shipped\", \"name\": \"Shipped\" }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Updates order status. Slug maps to: pending, processing, shipped, delivered, cancelled, returned."
+          }
+        },
+        {
+          "name": "product.created",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+            ],
+            "url": "{{baseUrl}}/webhooks/salla",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"product.created\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 5001,\n    \"name\": \"Arabic Coffee Maker\",\n    \"description\": \"Premium electric coffee maker\",\n    \"price\": { \"amount\": 149.00, \"currency\": \"SAR\" },\n    \"sale_price\": { \"amount\": 199.00 },\n    \"quantity\": 30,\n    \"category\": { \"name\": \"Kitchen\" },\n    \"brand\": { \"name\": \"AlKhair\" },\n    \"status\": \"sale\",\n    \"thumbnail\": \"https://example.com/coffee.jpg\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "product.updated",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+            ],
+            "url": "{{baseUrl}}/webhooks/salla",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"product.updated\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 5001,\n    \"name\": \"Arabic Coffee Maker (Updated)\",\n    \"price\": { \"amount\": 139.00, \"currency\": \"SAR\" },\n    \"quantity\": 25,\n    \"status\": \"sale\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "product.deleted",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+            ],
+            "url": "{{baseUrl}}/webhooks/salla",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"product.deleted\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 5001\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "customer.created",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+            ],
+            "url": "{{baseUrl}}/webhooks/salla",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"customer.created\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 201,\n    \"first_name\": \"Fatima\",\n    \"last_name\": \"Al-Rashidi\",\n    \"email\": \"fatima@test.com\",\n    \"mobile\": \"+966509876543\",\n    \"city\": \"Jeddah\",\n    \"country\": \"SA\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "app.uninstalled",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+            ],
+            "url": "{{baseUrl}}/webhooks/salla",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"app.uninstalled\",\n  \"merchant\": 12345,\n  \"data\": {}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Merchant uninstalled the app. Deactivates the merchant and sets needsReauth=true."
+          }
+        },
+        {
+          "name": "app.subscription.started",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+            ],
+            "url": "{{baseUrl}}/webhooks/salla",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"app.subscription.started\",\n  \"merchant\": 12345,\n  \"data\": { \"plan\": \"pro\" }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "app.subscription.canceled",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+            ],
+            "url": "{{baseUrl}}/webhooks/salla",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"app.subscription.canceled\",\n  \"merchant\": 12345,\n  \"data\": {}\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔄 Salla Sync",
+      "item": [
+        {
+          "name": "Trigger Manual Product Sync",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/platform/salla/sync",
+            "description": "Manually triggers full product sync from Salla. Requires JWT. Paginates through all products and deactivates stale ones. Cron runs every hour automatically."
+          }
+        }
+      ]
+    },
+    {
       "name": "📦 Products",
       "item": [
         {
