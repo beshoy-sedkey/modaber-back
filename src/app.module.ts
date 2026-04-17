@@ -11,6 +11,9 @@ import { ShopifyOauthModule } from './modules/platform/adapters/shopify/shopify-
 import { SallaOauthModule } from './modules/platform/adapters/salla/salla-oauth.module';
 import { ProductsModule } from './modules/products/products.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { ShippingModule } from './modules/shipping/shipping.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { OrdersModule } from './modules/orders/orders.module';
     SallaOauthModule,
     ProductsModule,
     OrdersModule,
+    ShippingModule,
+    DashboardModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}

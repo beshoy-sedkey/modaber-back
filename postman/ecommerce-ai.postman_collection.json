@@ -5,13 +5,31 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
-    { "key": "token",   "value": "", "type": "string" },
-    { "key": "merchantId", "value": "00000000-0000-0000-0000-000000000001", "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "merchantId",
+      "value": "00000000-0000-0000-0000-000000000001",
+      "type": "string"
+    }
   ],
   "auth": {
     "type": "bearer",
-    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
   },
   "item": [
     {
@@ -35,7 +53,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": "{{baseUrl}}/auth/token",
             "body": {
               "mode": "raw",
@@ -55,9 +78,20 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/auth/shopify/install?shop=your-store.myshopify.com",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "shopify", "install"],
-              "query": [{ "key": "shop", "value": "your-store.myshopify.com" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "shopify",
+                "install"
+              ],
+              "query": [
+                {
+                  "key": "shop",
+                  "value": "your-store.myshopify.com"
+                }
+              ]
             },
             "description": "Opens Shopify consent screen. Replace shop= with real store domain."
           }
@@ -68,14 +102,35 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/auth/shopify/callback?shop=your-store.myshopify.com&code=OAUTH_CODE&hmac=HMAC_VALUE&timestamp=1234567890&state=STATE",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "shopify", "callback"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "shopify",
+                "callback"
+              ],
               "query": [
-                { "key": "shop",      "value": "your-store.myshopify.com" },
-                { "key": "code",      "value": "OAUTH_CODE" },
-                { "key": "hmac",      "value": "HMAC_VALUE" },
-                { "key": "timestamp", "value": "1234567890" },
-                { "key": "state",     "value": "STATE" }
+                {
+                  "key": "shop",
+                  "value": "your-store.myshopify.com"
+                },
+                {
+                  "key": "code",
+                  "value": "OAUTH_CODE"
+                },
+                {
+                  "key": "hmac",
+                  "value": "HMAC_VALUE"
+                },
+                {
+                  "key": "timestamp",
+                  "value": "1234567890"
+                },
+                {
+                  "key": "state",
+                  "value": "STATE"
+                }
               ]
             },
             "description": "Called by Shopify after merchant approves. Verifies HMAC, exchanges code, returns JWT."
@@ -91,10 +146,23 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type",            "value": "application/json" },
-              { "key": "X-Shopify-Topic",          "value": "orders/create" },
-              { "key": "X-Shopify-Shop-Domain",    "value": "seed-store.myshopify.com" },
-              { "key": "X-Shopify-Hmac-SHA256",    "value": "REPLACE_WITH_VALID_HMAC", "description": "Compute: base64(HMAC-SHA256(SHOPIFY_API_SECRET, rawBody))" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Shopify-Topic",
+                "value": "orders/create"
+              },
+              {
+                "key": "X-Shopify-Shop-Domain",
+                "value": "seed-store.myshopify.com"
+              },
+              {
+                "key": "X-Shopify-Hmac-SHA256",
+                "value": "REPLACE_WITH_VALID_HMAC",
+                "description": "Compute: base64(HMAC-SHA256(SHOPIFY_API_SECRET, rawBody))"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/shopify",
             "body": {
@@ -109,10 +177,22 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type",            "value": "application/json" },
-              { "key": "X-Shopify-Topic",          "value": "products/create" },
-              { "key": "X-Shopify-Shop-Domain",    "value": "seed-store.myshopify.com" },
-              { "key": "X-Shopify-Hmac-SHA256",    "value": "REPLACE_WITH_VALID_HMAC" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Shopify-Topic",
+                "value": "products/create"
+              },
+              {
+                "key": "X-Shopify-Shop-Domain",
+                "value": "seed-store.myshopify.com"
+              },
+              {
+                "key": "X-Shopify-Hmac-SHA256",
+                "value": "REPLACE_WITH_VALID_HMAC"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/shopify",
             "body": {
@@ -154,11 +234,23 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/auth/salla/callback?code=SALLA_CODE&state=STATE",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "salla", "callback"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "salla",
+                "callback"
+              ],
               "query": [
-                { "key": "code",  "value": "SALLA_CODE" },
-                { "key": "state", "value": "STATE" }
+                {
+                  "key": "code",
+                  "value": "SALLA_CODE"
+                },
+                {
+                  "key": "state",
+                  "value": "STATE"
+                }
               ]
             },
             "description": "Called by Salla after merchant approves. Exchanges code for tokens, saves merchant, returns JWT."
@@ -174,14 +266,25 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET", "description": "Set SALLA_WEBHOOK_SECRET env value here" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET",
+                "description": "Set SALLA_WEBHOOK_SECRET env value here"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/salla",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"event\": \"order.created\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 9001,\n    \"reference_id\": \"ORD-9001\",\n    \"status\": { \"slug\": \"pending\", \"name\": \"Pending\" },\n    \"payment_method\": \"visa\",\n    \"amounts\": {\n      \"subtotal\": { \"amount\": 199.00 },\n      \"discount\": { \"amount\": 0 },\n      \"shipping\": { \"amount\": 15.00 },\n      \"total\": { \"amount\": 214.00 }\n    },\n    \"currency\": \"SAR\",\n    \"customer\": {\n      \"id\": 101,\n      \"name\": \"Ahmed Ali\",\n      \"email\": \"ahmed@test.com\",\n      \"mobile\": \"+966501234567\"\n    },\n    \"shipping\": {\n      \"address\": {\n        \"street\": \"123 King Fahd Rd\",\n        \"city\": \"Riyadh\",\n        \"country\": \"SA\"\n      }\n    },\n    \"items\": [\n      { \"product_id\": 5001, \"name\": \"Arabic Coffee Maker\", \"quantity\": 2, \"price\": { \"amount\": 99.50 } }\n    ],\n    \"note\": \"Please gift wrap\"\n  }\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "description": "Simulates Salla sending an order.created webhook. Token in Authorization header must match SALLA_WEBHOOK_SECRET."
           }
@@ -191,14 +294,24 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/salla",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"event\": \"order.updated\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 9001,\n    \"status\": { \"slug\": \"processing\" },\n    \"amounts\": {\n      \"subtotal\": { \"amount\": 199.00 },\n      \"discount\": { \"amount\": 0 },\n      \"shipping\": { \"amount\": 15.00 },\n      \"total\": { \"amount\": 214.00 }\n    },\n    \"currency\": \"SAR\",\n    \"items\": []\n  }\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
@@ -207,14 +320,24 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/salla",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"event\": \"order.status.updated\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 9001,\n    \"status\": { \"slug\": \"shipped\", \"name\": \"Shipped\" }\n  }\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "description": "Updates order status. Slug maps to: pending, processing, shipped, delivered, cancelled, returned."
           }
@@ -224,14 +347,24 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/salla",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"event\": \"product.created\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 5001,\n    \"name\": \"Arabic Coffee Maker\",\n    \"description\": \"Premium electric coffee maker\",\n    \"price\": { \"amount\": 149.00, \"currency\": \"SAR\" },\n    \"sale_price\": { \"amount\": 199.00 },\n    \"quantity\": 30,\n    \"category\": { \"name\": \"Kitchen\" },\n    \"brand\": { \"name\": \"AlKhair\" },\n    \"status\": \"sale\",\n    \"thumbnail\": \"https://example.com/coffee.jpg\"\n  }\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
@@ -240,14 +373,24 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/salla",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"event\": \"product.updated\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 5001,\n    \"name\": \"Arabic Coffee Maker (Updated)\",\n    \"price\": { \"amount\": 139.00, \"currency\": \"SAR\" },\n    \"quantity\": 25,\n    \"status\": \"sale\"\n  }\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
@@ -256,14 +399,24 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/salla",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"event\": \"product.deleted\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 5001\n  }\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
@@ -272,14 +425,24 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/salla",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"event\": \"customer.created\",\n  \"merchant\": 12345,\n  \"data\": {\n    \"id\": 201,\n    \"first_name\": \"Fatima\",\n    \"last_name\": \"Al-Rashidi\",\n    \"email\": \"fatima@test.com\",\n    \"mobile\": \"+966509876543\",\n    \"city\": \"Jeddah\",\n    \"country\": \"SA\"\n  }\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
@@ -288,14 +451,24 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/salla",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"event\": \"app.uninstalled\",\n  \"merchant\": 12345,\n  \"data\": {}\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "description": "Merchant uninstalled the app. Deactivates the merchant and sets needsReauth=true."
           }
@@ -305,14 +478,24 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/salla",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"event\": \"app.subscription.started\",\n  \"merchant\": 12345,\n  \"data\": { \"plan\": \"pro\" }\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
@@ -321,14 +504,24 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_SALLA_WEBHOOK_SECRET"
+              }
             ],
             "url": "{{baseUrl}}/webhooks/salla",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"event\": \"app.subscription.canceled\",\n  \"merchant\": 12345,\n  \"data\": {}\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         }
@@ -357,13 +550,31 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
               "query": [
-                { "key": "page",     "value": "1" },
-                { "key": "limit",    "value": "10" },
-                { "key": "category", "value": "", "disabled": true },
-                { "key": "search",   "value": "", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
               ]
             },
             "description": "Returns paginated products for the authenticated merchant. Supports category and search filters."
@@ -375,8 +586,13 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products/PRODUCT_ID",
-              "host": ["{{baseUrl}}"],
-              "path": ["products", "PRODUCT_ID"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "PRODUCT_ID"
+              ]
             },
             "description": "Replace PRODUCT_ID with an ID from the list response."
           }
@@ -392,12 +608,27 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/orders?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ],
               "query": [
-                { "key": "page",   "value": "1" },
-                { "key": "limit",  "value": "10" },
-                { "key": "status", "value": "pending", "disabled": true, "description": "pending|confirmed|shipped|delivered|cancelled" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "disabled": true,
+                  "description": "pending|confirmed|shipped|delivered|cancelled"
+                }
               ]
             },
             "description": "Returns paginated orders with customer info and items. Filter by status optionally."
@@ -409,9 +640,18 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/orders?status=pending",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders"],
-              "query": [{ "key": "status", "value": "pending" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
             }
           }
         },
@@ -421,9 +661,18 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/orders?status=delivered",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders"],
-              "query": [{ "key": "status", "value": "delivered" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "delivered"
+                }
+              ]
             }
           }
         },
@@ -433,10 +682,451 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/orders/ORDER_ID",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "ORDER_ID"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "ORDER_ID"
+              ]
             },
             "description": "Returns full order with customer, items, product names, and shipment info."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚚 Shipping",
+      "item": [
+        {
+          "name": "List Carriers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/shipping/carriers",
+            "description": "List all shipping carriers configured for the merchant"
+          }
+        },
+        {
+          "name": "Add Carrier",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/shipping/carriers",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carrierName\": \"aramex\",\n  \"apiKey\": \"your-aramex-api-key\",\n  \"isActive\": true,\n  \"priority\": 1,\n  \"coverageAreas\": { \"regions\": [\"riyadh\", \"jeddah\"] }\n}"
+            },
+            "description": "Add a new shipping carrier. API key is encrypted at rest."
+          }
+        },
+        {
+          "name": "Update Carrier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/shipping/carriers/:id",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false,\n  \"priority\": 2\n}"
+            },
+            "description": "Update carrier configuration. Only own carriers (by merchantId) can be updated."
+          }
+        },
+        {
+          "name": "Delete Carrier",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/shipping/carriers/:id",
+            "description": "Remove a carrier. Only own carriers (by merchantId) can be deleted."
+          }
+        },
+        {
+          "name": "List Shipments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shipping/shipments?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipping",
+                "shipments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List all shipments for the merchant, paginated"
+          }
+        },
+        {
+          "name": "Get Shipment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/shipping/shipments/:id",
+            "description": "Get a single shipment by ID. Returns 404 if not found or belongs to another merchant."
+          }
+        },
+        {
+          "name": "Assign Carrier to Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/shipping/shipments/:orderId/assign",
+            "description": "Auto-assign the highest-priority active carrier to the specified order. Creates a Shipment record and enqueues a BullMQ job for async processing."
+          }
+        },
+        {
+          "name": "Update Shipment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/shipping/shipments/:id",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trackingNumber\": \"ARM-12345678\",\n  \"status\": \"in_transit\",\n  \"estimatedCost\": 25.50,\n  \"weightKg\": 1.5,\n  \"estimatedDelivery\": \"2026-04-20T12:00:00Z\"\n}"
+            },
+            "description": "Update shipment details: tracking number, status, costs, delivery estimates, etc."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Dashboard",
+      "item": [
+        {
+          "name": "Overview KPIs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/dashboard/overview",
+            "description": "Returns main KPIs: revenue, orders, products, customers, pending orders, active shipments, today stats, low stock count."
+          }
+        },
+        {
+          "name": "Sales Chart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/sales-chart?period=30d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "sales-chart"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "7d | 30d | 90d"
+                }
+              ]
+            },
+            "description": "Daily revenue and order count for chart rendering. Period: 7d, 30d, or 90d."
+          }
+        },
+        {
+          "name": "Top Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/top-products?limit=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "top-products"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Top selling products by total revenue from order items."
+          }
+        },
+        {
+          "name": "Recent Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/recent-orders?limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "recent-orders"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Most recent orders with customer name, total, and status."
+          }
+        },
+        {
+          "name": "Order Status Breakdown",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/dashboard/order-status-breakdown",
+            "description": "Count of orders per status for the authenticated merchant."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📈 Reports",
+      "item": [
+        {
+          "name": "Sales Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/sales?from=2024-01-01&to=2024-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "sales"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Orders Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/orders?from=2024-01-01&to=2024-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Shipping Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/shipping?from=2024-01-01&to=2024-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "shipping"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Stock Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/stock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "stock"
+              ]
+            }
+          }
+        },
+        {
+          "name": "AI Usage Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/ai-usage?from=2024-01-01&to=2024-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "ai-usage"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
           }
         }
       ]
