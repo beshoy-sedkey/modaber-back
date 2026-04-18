@@ -58,6 +58,7 @@ model Merchant {
   shipments         Shipment[]
   ratings           Rating[]
   productEmbeddings ProductEmbedding[]
+  whatsappConfig    WhatsAppConfig?
 
   @@index([platformStoreId])
   @@map("merchants")
@@ -494,4 +495,49 @@ model AutomationRule {
   @@index([merchantId])
   @@index([merchantId, triggerEvent, isActive])
   @@map("automation_rules")
+}
+
+// ─────────────────────────────────────────────
+// WHATSAPP MODULE
+// ─────────────────────────────────────────────
+
+model WhatsAppConfig {
+  id                 String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchantId         String   @unique @map("merchant_id") @db.Uuid
+  phoneNumberId      String   @map("phone_number_id") @db.VarChar(255)
+  accessToken        String   @map("access_token") @db.Text
+  webhookVerifyToken String   @map("webhook_verify_token") @db.VarChar(255)
+  businessAccountId  String   @map("business_account_id") @db.VarChar(255)
+  appSecret          String?  @map("app_secret") @db.Text
+  isActive           Boolean  @default(true) @map("is_active")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  merchant         Merchant           @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  incomingMessages WhatsAppMessage[]
+
+  @@index([merchantId])
+  @@map("whatsapp_configs")
+}
+
+model WhatsAppMessage {
+  id              String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchantId      String   @map("merchant_id") @db.Uuid
+  whatsappMsgId   String   @map("whatsapp_msg_id") @db.VarChar(255)
+  from            String   @db.VarChar(50)
+  to              String?  @db.VarChar(50)
+  messageType     String   @map("message_type") @db.VarChar(50)
+  content         String   @db.Text
+  direction       String   @db.VarChar(10)
+  timestamp       DateTime
+  rawPayload      Json     @map("raw_payload")
+  configId        String   @map("config_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  config    WhatsAppConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId])
+  @@index([merchantId, from])
+  @@index([merchantId, timestamp])
+  @@map("whatsapp_messages")
 }
