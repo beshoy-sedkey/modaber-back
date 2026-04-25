@@ -19,6 +19,18 @@
       "key": "merchantId",
       "value": "00000000-0000-0000-0000-000000000001",
       "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "00000000-0000-0000-0000-000000000001",
+      "description": "Merchant UUID used as public API key for the chat widget",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "session-test-001",
+      "description": "Unique session ID per chat conversation",
+      "type": "string"
     }
   ],
   "auth": {
@@ -1127,6 +1139,155 @@
                 }
               ]
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 WhatsApp",
+      "item": [
+        {
+          "name": "Save / Update Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/whatsapp/config",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumberId\": \"123456789\",\n  \"accessToken\": \"EAAxxxYOUR_META_TOKEN\",\n  \"webhookVerifyToken\": \"my-verify-secret\",\n  \"businessAccountId\": \"987654321\",\n  \"appSecret\": \"optional-app-secret\",\n  \"isActive\": true\n}"
+            },
+            "description": "Configure the merchant's WhatsApp Business number. accessToken is encrypted at rest."
+          }
+        },
+        {
+          "name": "Get Config",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/whatsapp/config",
+            "description": "Returns current WhatsApp config. accessToken is masked (shown as ***last4chars)."
+          }
+        },
+        {
+          "name": "Send Text Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/whatsapp/send",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"text\",\n  \"to\": \"966501234567\",\n  \"message\": \"Your order #1001 has been confirmed!\",\n  \"previewUrl\": false\n}"
+            },
+            "description": "Enqueues a WhatsApp text message via BullMQ. type=text|template|interactive."
+          }
+        },
+        {
+          "name": "Send Template Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/whatsapp/send",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"template\",\n  \"to\": \"966501234567\",\n  \"templateName\": \"order_confirmation\",\n  \"languageCode\": \"ar\",\n  \"components\": [\n    {\n      \"type\": \"body\",\n      \"parameters\": [\n        { \"type\": \"text\", \"text\": \"#1001\" },\n        { \"type\": \"text\", \"text\": \"199.00 SAR\" }\n      ]\n    }\n  ]\n}"
+            },
+            "description": "Send a pre-approved WhatsApp template (e.g. order_confirmation). Template must be approved in Meta Business Manager."
+          }
+        },
+        {
+          "name": "Send Interactive (Buttons)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/whatsapp/send",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"interactive\",\n  \"to\": \"966501234567\",\n  \"interactive\": {\n    \"type\": \"button\",\n    \"body\": { \"text\": \"Confirm your order #1001?\" },\n    \"action\": {\n      \"buttons\": [\n        { \"type\": \"reply\", \"reply\": { \"id\": \"confirm_yes\", \"title\": \"✅ Yes, confirm\" } },\n        { \"type\": \"reply\", \"reply\": { \"id\": \"confirm_no\", \"title\": \"❌ Cancel\" } }\n      ]\n    }\n  }\n}"
+            },
+            "description": "Send an interactive button message. Used for order confirmation flow."
+          }
+        },
+        {
+          "name": "Webhook Verify (Meta challenge)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/whatsapp/webhook?hub.mode=subscribe&hub.verify_token=my-verify-secret&hub.challenge=CHALLENGE_CODE",
+              "host": ["{{baseUrl}}"],
+              "path": ["whatsapp", "webhook"],
+              "query": [
+                { "key": "hub.mode", "value": "subscribe" },
+                { "key": "hub.verify_token", "value": "my-verify-secret" },
+                { "key": "hub.challenge", "value": "CHALLENGE_CODE" }
+              ]
+            },
+            "description": "Meta calls this during webhook registration. Returns the challenge if verify_token matches."
+          }
+        },
+        {
+          "name": "Webhook Incoming (Meta push)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Hub-Signature-256", "value": "sha256=REPLACE_WITH_VALID_SIG", "description": "HMAC-SHA256 of raw body using appSecret" }
+            ],
+            "url": "{{baseUrl}}/whatsapp/webhook",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"object\": \"whatsapp_business_account\",\n  \"entry\": [{\n    \"id\": \"987654321\",\n    \"changes\": [{\n      \"value\": {\n        \"messaging_product\": \"whatsapp\",\n        \"metadata\": { \"display_phone_number\": \"966501234567\", \"phone_number_id\": \"123456789\" },\n        \"messages\": [{\n          \"from\": \"966509876543\",\n          \"id\": \"wamid.abc123\",\n          \"timestamp\": \"1714000000\",\n          \"type\": \"text\",\n          \"text\": { \"body\": \"نعم، أؤكد الطلب\" }\n        }]\n      },\n      \"field\": \"messages\"\n    }]\n  }]\n}"
+            },
+            "description": "Simulates Meta pushing an incoming WhatsApp message. Signature verification required."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🤖 AI Chat Widget",
+      "item": [
+        {
+          "name": "Serve Widget Script",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/widget/{{apiKey}}/chat.js",
+            "description": "Returns the embeddable JS chat widget. No auth required (public). Add to storefront:\n<script src=\"http://localhost:3000/widget/MERCHANT_UUID/chat.js\"></script>"
+          }
+        },
+        {
+          "name": "Send Message (HTTP fallback)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/widget/{{apiKey}}/message",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"message\": \"I'm looking for a gift under 200 SAR for a birthday\"\n}"
+            },
+            "description": "HTTP POST fallback when Socket.IO is unavailable. Returns full response (non-streaming). For real-time streaming use Socket.IO instead."
+          }
+        },
+        {
+          "name": "Socket.IO — Connect & Chat (instructions)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/docs",
+            "description": "Socket.IO endpoint: ws://localhost:3000/chat\n\nConnect:\n  socket = io('http://localhost:3000/chat', {\n    auth: { apiKey: '{{apiKey}}', sessionId: '{{sessionId}}' }\n  });\n\nSend message:\n  socket.emit('message', { message: 'Find me a red handbag under 500 SAR' });\n\nReceive streaming tokens:\n  socket.on('response_token', (data) => process.stdout.write(data.token));\n  socket.on('response_complete', () => console.log('Done'));\n\nTyping indicator:\n  socket.emit('typing', { isTyping: true });\n\nDisconnect:\n  socket.emit('disconnect_chat');"
           }
         }
       ]
