@@ -320,17 +320,20 @@ enum ConversationStatus {
 }
 
 model Conversation {
-  id            String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  merchantId    String              @map("merchant_id") @db.Uuid
-  customerId    String?             @map("customer_id") @db.Uuid
-  channel       ConversationChannel @default(web)
-  status        ConversationStatus  @default(active)
-  sessionId     String              @unique @map("session_id") @db.VarChar(255)
-  totalMessages Int                 @default(0) @map("total_messages")
-  totalTokens   Int                 @default(0) @map("total_tokens")
-  resolvedByAi  Boolean             @default(true) @map("resolved_by_ai")
-  startedAt     DateTime            @default(now()) @map("started_at")
-  endedAt       DateTime?           @map("ended_at")
+  id                  String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchantId          String              @map("merchant_id") @db.Uuid
+  customerId          String?             @map("customer_id") @db.Uuid
+  channel             ConversationChannel @default(web)
+  status              ConversationStatus  @default(active)
+  sessionId           String              @unique @map("session_id") @db.VarChar(255)
+  totalMessages       Int                 @default(0) @map("total_messages")
+  totalTokens         Int                 @default(0) @map("total_tokens")
+  resolvedByAi        Boolean             @default(true) @map("resolved_by_ai")
+  notifyOnShip        Boolean             @default(false) @map("notify_on_ship")
+  notifyOnDeliver     Boolean             @default(false) @map("notify_on_deliver")
+  customerPhone       String?             @map("customer_phone") @db.VarChar(20)
+  startedAt           DateTime            @default(now()) @map("started_at")
+  endedAt             DateTime?           @map("ended_at")
 
   merchant Merchant  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
   customer Customer? @relation(fields: [customerId], references: [id])

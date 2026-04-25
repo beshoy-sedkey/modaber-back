@@ -30,13 +30,22 @@ docker compose exec app npx prisma migrate dev --name <n>  # migration
 
 ## Install Needed
 ```
-docker compose exec app npm install json2csv
+docker compose exec app npm install json2csv exceljs pdfmake
 docker compose exec app npm install -D @types/json2csv
 ```
 
 ## Task
-6. Customers Report 7. Product Performance 8. Traffic & Conversion 9. Campaign Results
-CSV export: GET /reports/{type}/export?format=csv
+6. Customers Report — segmentation, loyalty status, purchase history, engagement level
+7. Product Performance Report — best-sellers, slow-movers, profitability per product
+8. Traffic & Conversion Report — visitor sessions, conversion funnel, bounce rate (sourced from stored analytics events)
+9. Campaign Results Report — reach, engagement, conversions, ROI per campaign (social + Google Ads)
+
+Export endpoint: GET /reports/{type}/export?format=csv|excel|pdf
+- CSV: json2csv
+- Excel: exceljs (styled worksheet with headers and totals row)
+- PDF: pdfmake (table layout with merchant logo placeholder and date range header)
+All exports scoped by merchantId and honor the same ?from=&to= date filters.
+
 Tests + verify
 
 ## Depends On: Agent 23

@@ -32,11 +32,22 @@ docker compose exec app npx prisma migrate dev --name <n>  # migration
 1. src/modules/chat/services/chat-agent.service.ts:
    - processMessage(merchantId, sessionId, message) → AsyncGenerator<string>
    - System prompt with merchant brand voice
-   - LangChain tools: search_products, get_product_details, check_order_status, collect_customer_info, add_to_cart
+   - LangChain tools: search_products, get_product_details, check_order_status, collect_customer_info, add_to_cart, get_payment_link
    - Memory: Redis for active (last 20 msgs), PostgreSQL for history
    - Model: gpt-4o-mini default, escalate to gpt-4o after 10 turns
 
-2. Tests: verify tool invocation on product search query
-3. Verify: docker compose exec app npx tsc --noEmit && docker compose exec app npx jest
+2. get_payment_link tool:
+   - Accepts collected order details (items, customer info, shipping address)
+   - Creates a pending order record in DB
+   - Returns a secure payment URL (merchant's configured payment gateway or redirect link)
+   - Supports: redirect to merchant checkout page with pre-filled cart
+
+3. Proactive notification support:
+   - After order ships/delivers, emit event → WhatsApp message to customer (handled by Agent 20)
+   - Customer can opt-in via chat: "notify me when my order ships"
+   - Save notification preference on the conversation/customer record
+
+4. Tests: verify tool invocation on product search query and payment link generation
+5. Verify: docker compose exec app npx tsc --noEmit && docker compose exec app npx jest
 
 ## Depends On: Agent 12

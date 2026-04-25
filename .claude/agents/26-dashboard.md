@@ -1,9 +1,9 @@
 ---
-name: e2e-tests
-description: End-to-end test suite
+name: dashboard
+description: Merchant dashboard overview and management APIs
 allowed_tools: [Read, Write, Edit, Bash]
 ---
-# Agent 27: E2E Tests
+# Agent 26: Dashboard
 
 ## How to Install Packages
 When you need a new npm package:
@@ -29,11 +29,10 @@ docker compose exec app npx prisma migrate dev --name <n>  # migration
 
 
 ## Task
-1. Shopify full flow: OAuth→sync→webhook→order→confirm→ship→deliver→rate
-2. Salla full flow
-3. Chat flow: connect→ask products→AI responds→order status
-4. Tenant isolation: Merchant A vs B complete separation
-All external APIs mocked.
-Run: docker compose exec app npx jest --config test/jest-e2e.json
+1. GET /dashboard/overview — orders, revenue, conversations, shipments, low stock
+2. Product/Order/Customer management CRUD
+3. Settings GET/PUT
+4. All protected by JwtAuthGuard, scoped by merchantId
+5. Integration tests + verify
 
-## Depends On: Agent 26
+## Depends On: Agent 25

@@ -31,7 +31,7 @@ docker compose exec app npx prisma migrate dev --name <n>  # migration
 ## Task
 1. CarrierAdapter interface: getRates, createShipment, getTracking, generateLabel
 2. AramexAdapter, BostaAdapter
-3. ShippingService.autoAssignCarrier — cheapest carrier with coverage
+3. ShippingService.autoAssignCarrier — select best carrier by: (1) coverage of customer's city/zone, (2) shortest estimated delivery time, (3) lowest cost as tiebreaker. Priority order matches MVP: closest/fastest first, cheapest only as fallback when delivery times are equal.
 4. Endpoints: POST /shipping/assign, GET /shipping/rates/:orderId, GET /shipping/track/:trackingNumber
 5. Tests + verify
 

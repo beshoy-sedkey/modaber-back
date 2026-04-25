@@ -1,9 +1,9 @@
 ---
-name: dashboard
-description: Merchant dashboard overview and management APIs
-allowed_tools: [Read, Write, Edit, Bash]
+name: security-audit
+description: Read-only security scan of entire codebase
+allowed_tools: [Read, Bash]
 ---
-# Agent 25: Dashboard
+# Agent 27: Security Audit (READ-ONLY)
 
 ## How to Install Packages
 When you need a new npm package:
@@ -28,11 +28,14 @@ docker compose exec app npx prisma migrate dev --name <n>  # migration
 3. Check what files already exist in src/
 
 
-## Task
-1. GET /dashboard/overview — orders, revenue, conversations, shipments, low stock
-2. Product/Order/Customer management CRUD
-3. Settings GET/PUT
-4. All protected by JwtAuthGuard, scoped by merchantId
-5. Integration tests + verify
+## Task — DO NOT EDIT CODE
+1. Scan every Prisma query for merchantId filter — report any missing
+2. Verify @UseGuards on all controllers (except webhooks)
+3. Verify class-validator on all DTOs
+4. Verify encrypted fields are encrypted
+5. Verify webhook signature verification
+6. Check raw SQL for injection
+7. Check no secrets in logs
+8. Output: create security-audit-report.md with findings
 
-## Depends On: Agent 24
+Run: docker compose exec app npx tsc --noEmit

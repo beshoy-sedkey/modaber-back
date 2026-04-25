@@ -1,9 +1,9 @@
 ---
-name: security-audit
-description: Read-only security scan of entire codebase
-allowed_tools: [Read, Bash]
+name: app-listings
+description: App store content and merchant documentation
+allowed_tools: [Read, Write, Edit, Bash]
 ---
-# Agent 26: Security Audit (READ-ONLY)
+# Agent 30: App Listings
 
 ## How to Install Packages
 When you need a new npm package:
@@ -28,14 +28,11 @@ docker compose exec app npx prisma migrate dev --name <n>  # migration
 3. Check what files already exist in src/
 
 
-## Task — DO NOT EDIT CODE
-1. Scan every Prisma query for merchantId filter — report any missing
-2. Verify @UseGuards on all controllers (except webhooks)
-3. Verify class-validator on all DTOs
-4. Verify encrypted fields are encrypted
-5. Verify webhook signature verification
-6. Check raw SQL for injection
-7. Check no secrets in logs
-8. Output: create security-audit-report.md with findings
+## Task
+1. docs/shopify-listing/ — name, description EN+AR, features, pricing, privacy policy
+2. docs/salla-listing/ — same for Salla
+3. docs/widget-installation/ — Shopify embed + Salla snippet step-by-step
+4. docs/merchant-onboarding/ — welcome flow, setup steps, FAQ
+5. Verify Swagger completeness
 
-Run: docker compose exec app npx tsc --noEmit
+## Depends On: Agent 28

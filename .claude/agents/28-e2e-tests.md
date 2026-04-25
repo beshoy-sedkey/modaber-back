@@ -1,9 +1,9 @@
 ---
-name: app-listings
-description: App store content and merchant documentation
+name: e2e-tests
+description: End-to-end test suite
 allowed_tools: [Read, Write, Edit, Bash]
 ---
-# Agent 29: App Listings
+# Agent 28: E2E Tests
 
 ## How to Install Packages
 When you need a new npm package:
@@ -29,10 +29,11 @@ docker compose exec app npx prisma migrate dev --name <n>  # migration
 
 
 ## Task
-1. docs/shopify-listing/ — name, description EN+AR, features, pricing, privacy policy
-2. docs/salla-listing/ — same for Salla
-3. docs/widget-installation/ — Shopify embed + Salla snippet step-by-step
-4. docs/merchant-onboarding/ — welcome flow, setup steps, FAQ
-5. Verify Swagger completeness
+1. Shopify full flow: OAuth→sync→webhook→order→confirm→ship→deliver→rate
+2. Salla full flow
+3. Chat flow: connect→ask products→AI responds→order status
+4. Tenant isolation: Merchant A vs B complete separation
+All external APIs mocked.
+Run: docker compose exec app npx jest --config test/jest-e2e.json
 
-## Depends On: Agent 28
+## Depends On: Agent 26

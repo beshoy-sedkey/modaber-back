@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, WebSocketAdapter } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { json, Request } from 'express';
 
 import { AppModule } from './app.module';
+import { RedisIoAdapter } from './shared/adapters/redis-io.adapter';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -46,6 +47,11 @@ async function bootstrap(): Promise<void> {
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
+
+  // ── WebSocket adapter (Redis-backed for multi-instance support) ───────────
+  const redisIoAdapter = new RedisIoAdapter(app);
+  await redisIoAdapter.connectToRedis();
+  app.useWebSocketAdapter(redisIoAdapter as unknown as WebSocketAdapter);
 
   // ── Start ─────────────────────────────────────────────────────────────────
   const port = process.env['PORT'] ?? 3000;

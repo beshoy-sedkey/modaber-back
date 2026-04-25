@@ -29,9 +29,22 @@ docker compose exec app npx prisma migrate dev --name <n>  # migration
 
 
 ## Task
-1. CampaignSchedulerService — BullMQ delayed jobs
-2. SocialPublisherService — Meta Graph API, TikTok API
-3. CampaignMetricService — daily fetch engagement metrics
-4. Tests + verify
+1. CampaignSchedulerService — BullMQ delayed jobs for all platforms
+
+2. SocialPublisherService — publish to:
+   - Meta Graph API (Instagram + Facebook)
+   - TikTok Content Posting API
+   - Snapchat Marketing API (Snap Ads Manager)
+
+3. GoogleAdsCampaignService — manage Google Ads campaigns:
+   - Create/update/pause campaigns via Google Ads API (googleapis npm package)
+   - Set budget, targeting (location, keywords, audience)
+   - Sync campaign status back to DB
+
+4. CampaignMetricService — daily fetch of engagement metrics:
+   - Social: reach, likes, comments, shares per post
+   - Google Ads: impressions, clicks, CTR, conversions, spend, ROAS
+
+5. Tests + verify
 
 ## Depends On: Agent 21

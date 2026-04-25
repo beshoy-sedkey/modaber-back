@@ -29,9 +29,19 @@ docker compose exec app npx prisma migrate dev --name <n>  # migration
 
 
 ## Task
-1. ContentGenerationService — LangChain generates posts for Instagram/Facebook/TikTok (Arabic + English)
-2. Campaign CRUD endpoints
-3. Regeneration endpoint
-4. Tests + verify
+1. ContentGenerationService — LangChain generates posts for Instagram/Facebook/TikTok/Snapchat (Arabic + English)
+   - Platform-aware: character limits, hashtag style, and tone differ per platform
+   - Snapchat: short-form vertical video captions, max 200 chars, casual tone
+
+2. GoogleAdsContentService — generates ad copy for Google Ads campaigns
+   - Headlines (max 30 chars each, up to 15), descriptions (max 90 chars each, up to 4)
+   - Keyword suggestions based on product catalog
+   - Campaign type support: Search, Display, Shopping
+
+3. Campaign CRUD endpoints (social + Google Ads campaigns stored in same Campaign model, differentiated by `platform` enum: INSTAGRAM | FACEBOOK | TIKTOK | SNAPCHAT | GOOGLE_ADS)
+
+4. Regeneration endpoint — regenerate content based on performance feedback
+
+5. Tests + verify
 
 ## Depends On: Agent 20

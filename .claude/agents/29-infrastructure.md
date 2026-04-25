@@ -3,7 +3,7 @@ name: infrastructure
 description: Production Docker, CI/CD, Terraform, monitoring
 allowed_tools: [Read, Write, Edit, Bash]
 ---
-# Agent 28: Infrastructure
+# Agent 29: Infrastructure
 
 ## How to Install Packages
 When you need a new npm package:
