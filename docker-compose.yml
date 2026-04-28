@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: dev_password_123
       POSTGRES_DB: ecommerce_ai
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -39,6 +39,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      network: host
     container_name: ecom_app
     restart: unless-stopped
     ports:

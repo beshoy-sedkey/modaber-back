@@ -1,5 +1,6 @@
 node_modules/
 dist/
+prisma/client/
 .env
 coverage/
 *.log

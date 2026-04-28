@@ -8,6 +8,14 @@ generator client {
   previewFeatures = ["postgresqlExtensions"]
 }
 
+// Outputs types into the mounted ./prisma/client directory so the host
+// VS Code TypeScript server can resolve @prisma/client without node_modules.
+generator clientHost {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+  output          = "./client"
+}
+
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
